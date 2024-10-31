@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    >
+  <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:src="@drawable/top_background"
+        android:layout_marginVertical="-7dp"/>
+
+    <TextView
+        android:layout_width="164dp"
+        android:layout_height="84dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="20dp"
+        android:text="Hii, You are safe now !!"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+  </FrameLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="SIGN UP"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fill the following details"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Full Name"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="left"
+        android:layout_marginStart="24dp"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:textStyle="normal"
+        />
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@drawable/textfield"
+        android:hint="Uday..."
+        android:maxLines="1"
+        android:inputType="text"
+        android:textSize="15sp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:text="Contact"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="normal" />
+
+    <EditText
+        android:id="@+id/contact"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@drawable/textfield"
+        android:maxLines="1"
+        android:inputType="phone"
+        android:hint="91+"
+        android:textSize="15sp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:text="Aadhar"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="normal" />
+
+    <EditText
+        android:id="@+id/aadhar"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@drawable/textfield"
+        android:maxLines="1"
+        android:inputType="phone"
+        android:hint="9878..."
+        android:textSize="15sp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        />
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="left"
+      android:layout_marginStart="24dp"
+      android:layout_marginTop="12dp"
+      android:text="Email"
+      android:textColor="#000000"
+      android:textSize="16sp"
+      android:textStyle="normal" />
+
+  <EditText
+      android:id="@+id/email"
+      android:layout_width="match_parent"
+      android:layout_height="55dp"
+      android:background="@drawable/textfield"
+      android:maxLines="1"
+      android:inputType="textEmailAddress"
+      android:hint="uday@gm...."
+      android:textSize="15sp"
+      android:paddingStart="20dp"
+      android:paddingEnd="20dp"
+      android:layout_marginStart="20dp"
+      android:layout_marginEnd="20dp"
+      android:layout_marginTop="12dp"
+      />
+
+  <Button
+      android:id="@+id/healthdatabutt"
+      android:layout_width="match_parent"
+      android:layout_height="45dp"
+      android:background="@drawable/health_field"
+      android:text="Click here to enter health data"
+      android:textSize="13sp"
+      android:textAlignment="center"
+      android:padding="9dp"
+      android:layout_marginTop="20dp"
+      android:layout_marginStart="70dp"
+      android:layout_marginEnd="70dp"
+      />
+
+  <Button
+      android:id="@+id/signupbutt"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Submit"
+      android:background="@drawable/button_bg"
+      android:layout_marginStart="110dp"
+      android:layout_marginEnd="110dp"
+      android:layout_marginTop="17dp"
+      />
+
+</LinearLayout>
