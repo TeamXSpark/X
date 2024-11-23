@@ -73,10 +73,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    
-    //otp Login
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+        implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    // Mapbox
     implementation("com.mapbox.maps:android:11.8.0")
 }
