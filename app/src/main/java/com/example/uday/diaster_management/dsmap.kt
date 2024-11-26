@@ -25,11 +25,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.mapbox.geojson.LineString
+import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createPolygonAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
+import android.util.Log
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 
 class dsmap : Fragment() {
 
     private lateinit var mapView: MapView
+    private lateinit var initial_location: Point
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var blue_zone: List<Point>
+    private lateinit var mint_zone: List<Point>
+    private lateinit var cyclone_map: List<Point>
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
@@ -45,16 +58,21 @@ class dsmap : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // Load the map style
+        var initial_longitude = 83.0928152
+        var initial_latitude = 19.1797833
         mapView.getMapboxMap().loadStyleUri(Style.SATELLITE_STREETS) { style ->
             // Set initial camera position
             mapView.getMapboxMap().setCamera(
                 CameraOptions.Builder()
-                    .center(Point.fromLngLat(83.0928118, 19.1797914))
-                    .zoom(13.0)
+                    .center(Point.fromLngLat(initial_longitude, initial_latitude))
+                    .zoom(7.0)
                     .build()
             )
+            initial_location = Point.fromLngLat(initial_longitude, initial_latitude)
+            cyclone()
             // Add the red marker icon to the map style
-            val redMarkerDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.red_marker)
+            val redMarkerDrawable =
+                ContextCompat.getDrawable(requireContext(), R.drawable.red_marker)
             redMarkerDrawable?.let { drawable ->
                 val bitmap = BitmapUtils.getBitmapFromDrawable(drawable)
                 bitmap?.let {
@@ -94,6 +112,8 @@ class dsmap : Fragment() {
             if (location != null) {
                 // Center the map on the user's location
                 centerMapOnLocation(location.longitude, location.latitude)
+                var loc = Point.fromLngLat(location.longitude,location.latitude)
+                check_danger(loc)
 
                 // Add a marker at the user's location
                 mapView.getMapboxMap().getStyle { style ->
@@ -107,9 +127,14 @@ class dsmap : Fragment() {
 
                     // Add the point annotation to the map
                     pointAnnotationManager.create(pointAnnotationOptions)
+
                 }
             } else {
-                Toast.makeText(requireContext(), "Unable to fetch location. Turn on GPS.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Unable to fetch location. Turn on GPS.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -175,4 +200,227 @@ class dsmap : Fragment() {
         super.onDestroyView()
         mapView.onDestroy()
     }
+
+    fun cyclone() {
+        val annotationApi = mapView?.annotations
+
+        val polygonAnnotationManager = annotationApi?.createPolygonAnnotationManager()
+        val polylineAnnotationManager = mapView.annotations.createPolylineAnnotationManager()
+
+        mint_zone = listOf(
+            Point.fromLngLat(85.4624392, 21.2712534),
+            Point.fromLngLat(85.9191281, 21.5540530),
+            Point.fromLngLat(86.3976794, 21.7022658),
+            Point.fromLngLat(86.9720517, 21.6835018),
+            Point.fromLngLat(87.6179557, 21.4008027),
+            Point.fromLngLat(88.1905860, 21.0431827),
+            Point.fromLngLat(88.5602121, 20.5865332),
+            Point.fromLngLat(89.0642690, 19.9877267),
+            Point.fromLngLat(89.4204164, 19.4162690),
+            Point.fromLngLat(89.8753696, 18.7221999),
+            Point.fromLngLat(90.2985772, 18.4807991),
+            Point.fromLngLat(90.8775481, 18.3745982),
+            Point.fromLngLat(91.6605497, 18.2241107),
+            Point.fromLngLat(92.1762516, 17.8794790),
+            Point.fromLngLat(92.4993239, 17.3759264),
+            Point.fromLngLat(92.6096628, 16.7831279),
+            Point.fromLngLat(92.5637060, 16.1028298),
+            Point.fromLngLat(92.0574020, 15.6439862),
+            Point.fromLngLat(91.3902136, 15.3799438),
+            Point.fromLngLat(90.2300319, 15.1832013),
+            Point.fromLngLat(89.1510563, 15.1533743),
+            Point.fromLngLat(88.1299455, 15.2684669),
+            Point.fromLngLat(87.2218626, 15.5097212),
+            Point.fromLngLat(86.4720672, 16.2251981),
+            Point.fromLngLat(85.8909319, 16.9391580),
+            Point.fromLngLat(85.5305984, 17.6380334),
+            Point.fromLngLat(85.2434897, 18.2244129),
+            Point.fromLngLat(84.9785293, 18.7859986),
+            Point.fromLngLat(84.7783186, 19.2834665),
+            Point.fromLngLat(84.6738649, 19.7227763),
+            Point.fromLngLat(84.6071174, 20.1444332),
+            Point.fromLngLat(84.7343681, 20.5305267),
+            Point.fromLngLat(85.0222023, 20.9167407),
+            Point.fromLngLat(85.4624392, 21.2712534),
+        )
+        val polygonAnnotationOptions3: PolygonAnnotationOptions = PolygonAnnotationOptions()
+            .withPoints(listOf(mint_zone))
+            // Style the polygon that will be added to the map.
+            .withFillColor("#A1D6B2")
+            .withFillOpacity(0.2) // Outline color
+        polygonAnnotationManager?.create(polygonAnnotationOptions3)
+
+        val polylineAnnotationOptions3 = PolylineAnnotationOptions()
+            .withGeometry(LineString.fromLngLats(mint_zone)) // Use the same points for the outline
+            .withLineColor("#88D66C") // Stroke/outline color
+            .withLineWidth(0.4) // Stroke width
+
+        polylineAnnotationManager.create(polylineAnnotationOptions3)
+
+        blue_zone = listOf(
+            Point.fromLngLat(86.0761534, 20.7279429),
+            Point.fromLngLat(86.2795055, 20.8101406),
+            Point.fromLngLat(86.4942002, 20.8686851),
+            Point.fromLngLat(86.8143281, 20.9006535),
+            Point.fromLngLat(86.9778899, 20.8248114),
+            Point.fromLngLat(87.1327595, 20.7181056),
+            Point.fromLngLat(87.4383086, 20.4921741),
+            Point.fromLngLat(87.7969651, 20.1357612),
+            Point.fromLngLat(88.1324872, 19.6705684),
+            Point.fromLngLat(88.4618174, 19.1960511),
+            Point.fromLngLat(88.8113867, 18.6820246),
+            Point.fromLngLat(89.1583546, 18.1138931),
+            Point.fromLngLat(89.2770191, 17.6223516),
+            Point.fromLngLat(89.1007957, 17.1812062),
+            Point.fromLngLat(88.5733678, 16.8454885),
+            Point.fromLngLat(88.0842174, 16.7477294),
+            Point.fromLngLat(87.6869877, 16.8162493),
+            Point.fromLngLat(87.2349540, 17.0592311),
+            Point.fromLngLat(86.9380432, 17.4060474),
+            Point.fromLngLat(86.4492460, 18.1906746),
+            Point.fromLngLat(86.1800609, 18.5855735),
+            Point.fromLngLat(85.9557630, 18.9712372),
+            Point.fromLngLat(85.8128148, 19.2666463),
+            Point.fromLngLat(85.6987226, 19.6084314),
+            Point.fromLngLat(85.6341354, 19.9007354),
+            Point.fromLngLat(85.6268370, 20.0892060),
+            Point.fromLngLat(85.6610034, 20.2906579),
+            Point.fromLngLat(85.7398336, 20.4729407),
+            Point.fromLngLat(85.9060195, 20.6093057),
+            Point.fromLngLat(86.0761534, 20.7279429),
+        )
+        val polygonAnnotationOptions2: PolygonAnnotationOptions = PolygonAnnotationOptions()
+            .withPoints(listOf(blue_zone))
+            // Style the polygon that will be added to the map.
+            .withFillColor("#9694FF")
+            .withFillOpacity(0.2) // Outline color
+        polygonAnnotationManager?.create(polygonAnnotationOptions2)
+
+        val polylineAnnotationOptions2 = PolylineAnnotationOptions()
+            .withGeometry(LineString.fromLngLats(blue_zone)) // Use the same points for the outline
+            .withLineColor("#88D66C") // Stroke/outline color
+            .withLineWidth(0.4) // Stroke width
+
+        polylineAnnotationManager.create(polylineAnnotationOptions2)
+
+        cyclone_map = listOf(
+            Point.fromLngLat(86.6524841, 19.9560899),
+            Point.fromLngLat(86.7467848, 19.9896696),
+            Point.fromLngLat(87.0032870, 19.9655221),
+            Point.fromLngLat(87.1470647, 19.9349422),
+            Point.fromLngLat(87.2261021, 19.8715229),
+            Point.fromLngLat(87.3008317, 19.7941921),
+            Point.fromLngLat(87.3569501, 19.6924884),
+            Point.fromLngLat(87.3829109, 19.5585812),
+            Point.fromLngLat(87.3520715, 19.3896326),
+            Point.fromLngLat(87.2337301, 19.2210677),
+            Point.fromLngLat(87.0724858, 19.1284416),
+            Point.fromLngLat(86.9162549, 19.0785463),
+            Point.fromLngLat(86.6720700, 19.0718932),
+            Point.fromLngLat(86.4541295, 19.1892026),
+            Point.fromLngLat(86.3642439, 19.2825323),
+            Point.fromLngLat(86.3401058, 19.3831369),
+            Point.fromLngLat(86.3172463, 19.5067340),
+            Point.fromLngLat(86.3594218, 19.6525013),
+            Point.fromLngLat(86.4061615, 19.7733859),
+            Point.fromLngLat(86.4746408, 19.8539082),
+            Point.fromLngLat(86.5528700, 19.9110162),
+            Point.fromLngLat(86.6524841, 19.9560899),
+        )
+// Set options for the resulting fill layer.
+        val polygonAnnotationOptions1: PolygonAnnotationOptions = PolygonAnnotationOptions()
+            .withPoints(listOf(cyclone_map))
+            // Style the polygon that will be added to the map.
+            .withFillColor("#399918")
+            .withFillOpacity(1.0) // Outline color
+        polygonAnnotationManager?.create(polygonAnnotationOptions1)
+
+        val polylineAnnotationOptions = PolylineAnnotationOptions()
+            .withGeometry(LineString.fromLngLats(cyclone_map)) // Use the same points for the outline
+            .withLineColor("#88D66C") // Stroke/outline color
+            .withLineWidth(0.7) // Stroke width
+
+
+        polylineAnnotationManager.create(polylineAnnotationOptions)
+
+        val cyclone_line: List<Point> = listOf(
+            Point.fromLngLat(86.8780682, 19.5012972),
+            Point.fromLngLat(87.2707842, 18.9298677),
+            Point.fromLngLat(87.8936492, 18.0066994),
+            Point.fromLngLat(88.3678464, 17.3933010),
+            Point.fromLngLat(89.0271218, 17.1493761),
+            Point.fromLngLat(89.9492686, 16.7187629),
+            Point.fromLngLat(91.0249806, 16.8106158),
+            Point.fromLngLat(92.3106176, 16.9973193),
+        )
+        val polylineAnnotationOptions4 = PolylineAnnotationOptions()
+            .withGeometry(LineString.fromLngLats(cyclone_line)) // Use the same points for the outline
+            .withLineColor("#FF0000") // Stroke/outline color
+            .withLineWidth(1.0) // Stroke width
+        polylineAnnotationManager.create(polylineAnnotationOptions4)
+    }
+
+    fun check_danger(userLocation: Point) {
+        if (userLocation != initial_location) {
+            when {
+                isPointInPolygon(userLocation, blue_zone) -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "You are in fuckin danger!!!",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+
+                isPointInPolygon(userLocation, mint_zone) -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "You are safe for a time being , haha",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+
+                isPointInPolygon(userLocation, cyclone_map) -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "You are in the Cyclone Area. Take precautions!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "You are outside defined zones.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    fun isPointInPolygon(point: Point, polygon: List<Point>): Boolean {
+        var intersects = 0
+        val x = point.longitude()
+        val y = point.latitude()
+
+        for (i in polygon.indices) {
+            val p1 = polygon[i]
+            val p2 = polygon[(i + 1) % polygon.size] // Next vertex, looping back to the start
+
+            val x1 = p1.longitude()
+            val y1 = p1.latitude()
+            val x2 = p2.longitude()
+            val y2 = p2.latitude()
+
+            // Check if the ray intersects with the polygon edge
+            if ((y > y1) != (y > y2) && x < (x2 - x1) * (y - y1) / (y2 - y1) + x1) {
+                intersects++
+            }
+        }
+        // If the number of intersections is odd, the point is inside the polygon
+        return intersects % 2 == 1
+    }
+
 }
