@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+       <item
+           android:id="@+id/bottom_map"
+           android:title="map"
+           android:icon="@drawable/mapnav"/>
+        <item
+        android:id="@+id/bottom_town"
+        android:title="Your Area"
+        android:icon="@drawable/mytown"/>
+      <item
+          android:id="@+id/bottom_profile"
+          android:title="Profile"
+          android:icon="@drawable/profile"/>
+</menu>

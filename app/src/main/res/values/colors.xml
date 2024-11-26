@@ -11,10 +11,12 @@
     <color name="Healthbox">#ff9b85</color>
 
     //OTP login Page
-    <color name="colorprimary">#536DFE</color>
     <color name="colorPrimaryDark">#536DFE</color>
     <color name="colorTextPrimary">#212121</color>
     <color name="colorTextSecondary">#757575</color>
     <color name="colorDivide">#BDBDBD</color>
     <color name="colorwhite">#FFFFFF</color>
+
+    //Disaster Management
+    <color name="green">#06D001</color>
 </resources>

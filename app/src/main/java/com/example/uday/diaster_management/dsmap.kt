@@ -4,12 +4,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.example.uday.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
@@ -21,19 +21,28 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class dmap : AppCompatActivity() {
+class dsmap : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dmap)
+    private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
-        // Initialize map view
-        mapView = findViewById(R.id.mapView)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_dmap, container, false)
+
+        // Initialize map view and location client
+        mapView = view.findViewById(R.id.mapView)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // Load the map style
         mapView.getMapboxMap().loadStyleUri(Style.SATELLITE_STREETS) { style ->
@@ -44,71 +53,35 @@ class dmap : AppCompatActivity() {
                     .zoom(13.0)
                     .build()
             )
-                // Add the red marker icon to the map style
-                val redMarkerDrawable = getDrawable(R.drawable.red_marker) // Ensure your drawable exists
-                redMarkerDrawable?.let { drawable ->
-                    val bitmap = BitmapUtils.getBitmapFromDrawable(drawable)
-                    bitmap?.let {
-                        style.addImage("red_marker", it)
-                    }
+            // Add the red marker icon to the map style
+            val redMarkerDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.red_marker)
+            redMarkerDrawable?.let { drawable ->
+                val bitmap = BitmapUtils.getBitmapFromDrawable(drawable)
+                bitmap?.let {
+                    style.addImage("red_marker", it)
                 }
+            }
         }
 
         // Handle "My Location" button click
-        val myLocationButton: FloatingActionButton = findViewById(R.id.mylocation)
+        val myLocationButton: FloatingActionButton = view.findViewById(R.id.mylocation)
         myLocationButton.setOnClickListener {
             fetchAndCenterOnCurrentLocation()
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
-        mapView.onStart()
+        return view
     }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
-    private val LOCATION_PERMISSION_REQUEST_CODE = 100
 
     private fun requestLocationPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
+        requestPermissions(
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             LOCATION_PERMISSION_REQUEST_CODE
         )
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fetchAndCenterOnCurrentLocation()
-            } else {
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
     private fun fetchAndCenterOnCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(
-                this,
+                requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -136,7 +109,7 @@ class dmap : AppCompatActivity() {
                     pointAnnotationManager.create(pointAnnotationOptions)
                 }
             } else {
-                Toast.makeText(this, "Unable to fetch location. Turn on GPS.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Unable to fetch location. Turn on GPS.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -149,6 +122,22 @@ class dmap : AppCompatActivity() {
                 .build()
         )
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchAndCenterOnCurrentLocation()
+            } else {
+                Toast.makeText(requireContext(), "Permission denied!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     object BitmapUtils {
         fun getBitmapFromDrawable(drawable: Drawable): Bitmap? {
             return if (drawable is BitmapDrawable) {
@@ -165,5 +154,25 @@ class dmap : AppCompatActivity() {
                 bitmap
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapView.onDestroy()
     }
 }
