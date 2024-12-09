@@ -2,7 +2,14 @@ package com.example.uday.diaster_management
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -10,30 +17,19 @@ import androidx.fragment.app.Fragment
 import com.example.uday.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.mapbox.geojson.LineString
-import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.createPolygonAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
-import android.util.Log
-import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 
 class dsmap : Fragment() {
 
@@ -58,14 +54,14 @@ class dsmap : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         // Load the map style
-        var initial_longitude = 83.0928152
-        var initial_latitude = 19.1797833
+        var initial_longitude = 77.4911222
+        var initial_latitude = 26.6463603
         mapView.getMapboxMap().loadStyleUri(Style.SATELLITE_STREETS) { style ->
             // Set initial camera position
             mapView.getMapboxMap().setCamera(
                 CameraOptions.Builder()
                     .center(Point.fromLngLat(initial_longitude, initial_latitude))
-                    .zoom(7.0)
+                    .zoom(2.5)
                     .build()
             )
             initial_location = Point.fromLngLat(initial_longitude, initial_latitude)
@@ -106,8 +102,6 @@ class dsmap : Fragment() {
             requestLocationPermissions()
             return
         }
-
-        // Get the last known location
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 // Center the map on the user's location
@@ -119,6 +113,8 @@ class dsmap : Fragment() {
                 mapView.getMapboxMap().getStyle { style ->
                     val annotationApi = mapView.annotations
                     val pointAnnotationManager = annotationApi.createPointAnnotationManager()
+
+                    pointAnnotationManager.deleteAll()
 
                     // Create a point annotation
                     val pointAnnotationOptions = PointAnnotationOptions()
@@ -143,7 +139,7 @@ class dsmap : Fragment() {
         mapView.getMapboxMap().setCamera(
             CameraOptions.Builder()
                 .center(Point.fromLngLat(longitude, latitude))
-                .zoom(12.0) // Adjust zoom level for clarity
+                .zoom(7.0) // Adjust zoom level for clarity
                 .build()
         )
     }
@@ -201,6 +197,7 @@ class dsmap : Fragment() {
         mapView.onDestroy()
     }
 
+    //Cyclone map
     fun cyclone() {
         val annotationApi = mapView?.annotations
 
@@ -360,6 +357,7 @@ class dsmap : Fragment() {
         polylineAnnotationManager.create(polylineAnnotationOptions4)
     }
 
+    //Checking if youser is in danger zone or not
     fun check_danger(userLocation: Point) {
         if (userLocation != initial_location) {
             when {
@@ -400,6 +398,7 @@ class dsmap : Fragment() {
         }
     }
 
+    //Algorithm to find the point is in polygon or not
     fun isPointInPolygon(point: Point, polygon: List<Point>): Boolean {
         var intersects = 0
         val x = point.longitude()
@@ -407,19 +406,18 @@ class dsmap : Fragment() {
 
         for (i in polygon.indices) {
             val p1 = polygon[i]
-            val p2 = polygon[(i + 1) % polygon.size] // Next vertex, looping back to the start
+            val p2 = polygon[(i + 1) % polygon.size]
 
             val x1 = p1.longitude()
             val y1 = p1.latitude()
             val x2 = p2.longitude()
             val y2 = p2.latitude()
 
-            // Check if the ray intersects with the polygon edge
+
             if ((y > y1) != (y > y2) && x < (x2 - x1) * (y - y1) / (y2 - y1) + x1) {
                 intersects++
             }
         }
-        // If the number of intersections is odd, the point is inside the polygon
         return intersects % 2 == 1
     }
 

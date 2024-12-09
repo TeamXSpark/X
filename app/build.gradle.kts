@@ -1,13 +1,12 @@
 plugins {
-    alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.google.gms.google.services)
+    id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.uday"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "com.example.uday"
         minSdk = 24
@@ -16,9 +15,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -75,9 +72,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-        implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("androidx.activity:activity-ktx:1.8.0")
     implementation("com.mapbox.maps:android:11.8.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.material:material:1.9.0")
+    implementation("com.rethinkdb:rethinkdb-driver:2.4.4")
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.material:material:1.11.0")
+
 }

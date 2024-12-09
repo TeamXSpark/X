@@ -1,6 +1,8 @@
 package com.example.uday.login
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -12,130 +14,131 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import java.util.concurrent.TimeUnit
-import com.example.uday.login.signup
 
 class loginpage : AppCompatActivity() {
 
-    private lateinit var sendOTPBtn : Button
-    private lateinit var phoneNumberET : EditText
-    private lateinit var number : String
-
+    private lateinit var sendOTPBtn: Button
+    private lateinit var phoneNumberET: EditText
     private lateinit var auth: FirebaseAuth
-    // [END declare_auth]
 
     private var storedVerificationId: String? = ""
     private lateinit var resendToken: PhoneAuthProvider.ForceResendingToken
+    private lateinit var callbacks: OnVerificationStateChangedCallbacks
 
+    companion object {
+        private const val TAG = "PhoneAuthActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_otp_login)
 
-        init()
-        sendOTPBtn.setOnClickListener {
-            Log.d("OTP", "OTP button clicked") // Check if button click is detected
-            number = phoneNumberET.text.trim().toString()
-            Log.d("OTP", "Phone number entered: $number") // Check entered number
-            if (number.isNotEmpty()){
-                if (number.length == 10){
-                    number = "+91$number"
-                    val options = PhoneAuthOptions.newBuilder(auth)
-                        .setPhoneNumber(number)
-                        .setTimeout(60L, TimeUnit.SECONDS)
-                        .setActivity(this)
-                        .setCallbacks(callbacks)
-                        .build()
-                    PhoneAuthProvider.verifyPhoneNumber(options)
-                    Log.d("OTP", "PhoneAuthProvider called") // Check if verification is initiated
-                } else {
-                    Toast.makeText(this, "Please Enter correct Number", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Please Enter Number", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    }
-
-    private fun init(){
+        // Initialize views and FirebaseAuth
         sendOTPBtn = findViewById(R.id.submit)
         phoneNumberET = findViewById(R.id.phno)
         auth = FirebaseAuth.getInstance()
+
+        // Set up the button click listener
+        sendOTPBtn.setOnClickListener {
+            val phoneNumber = phoneNumberET.text.toString().trim()
+            if (phoneNumber.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid phone number", Toast.LENGTH_SHORT).show()
+            } else if (!isNetworkAvailable()) {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
+            } else {
+                startPhoneNumberVerification(phoneNumber)
+            }
+        }
+
+        // Set up callbacks for Firebase Phone Authentication
+        callbacks = object : OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                // Automatic verification or instant verification
+                Log.d(TAG, "onVerificationCompleted:$credential")
+                signInWithPhoneAuthCredential(credential)
+            }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                // Verification failed for various reasons
+                Log.e(TAG, "Verification failed", e)
+                when (e) {
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        Log.e(TAG, "Invalid phone number format: ${e.message}")
+                        Toast.makeText(this@loginpage, "Invalid phone number format", Toast.LENGTH_SHORT).show()
+                    }
+                    is FirebaseTooManyRequestsException -> {
+                        Log.e(TAG, "SMS quota exceeded: ${e.message}")
+                        Toast.makeText(this@loginpage, "SMS quota exceeded. Try again later.", Toast.LENGTH_SHORT).show()
+                    }
+                    is FirebaseAuthMissingActivityForRecaptchaException -> {
+                        Log.e(TAG, "Missing reCAPTCHA activity: ${e.message}")
+                        Toast.makeText(this@loginpage, "reCAPTCHA verification failed.", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Log.e(TAG, "Unknown error: ${e.message}")
+                        Toast.makeText(this@loginpage, "Verification failed. Try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                // Code has been sent successfully
+                Log.d(TAG, "onCodeSent: $verificationId")
+                storedVerificationId = verificationId
+                resendToken = token
+
+                // Redirect to OTP verification screen
+                val intent = Intent(this@loginpage, otp_verification::class.java)
+                intent.putExtra("verificationID", storedVerificationId)
+                intent.putExtra("phone no", phoneNumberET.text.toString().trim())
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun startPhoneNumberVerification(phoneNumber: String) {
+        // Append country code and start verification
+        val fullPhoneNumber = "+91$phoneNumber"
+        Log.d(TAG, "Starting verification for: $fullPhoneNumber")
+
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(fullPhoneNumber) // Phone number to verify
+            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+            .setActivity(this) // Activity (for callback binding)
+            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        // Sign in with the credential
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Toast.makeText(this , "Authenticate Successfully" , Toast.LENGTH_SHORT).show()
-                    sendToMain()
+                    Log.d(TAG, "signInWithCredential:success")
+                    val user = task.result?.user
+
+                    // Redirect to the signup screen
+                    val intent = Intent(this@loginpage, signup::class.java)
+                    startActivity(intent)
                 } else {
-                    // Sign in failed, display a message and update the UI
-                    Log.d("TAG", "signInWithPhoneAuthCredential: ${task.exception.toString()}")
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        // The verification code entered was invalid
+                        Toast.makeText(this, "Invalid verification code", Toast.LENGTH_SHORT).show()
                     }
-                    // Update UI
                 }
             }
     }
 
-    private fun sendToMain(){
-        startActivity(Intent(this , signup::class.java))
-    }
-
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // This callback will be invoked in two situations:
-            // 1 - Instant verification. In some cases the phone number can be instantly
-            //     verified without needing to send or enter a verification code.
-            // 2 - Auto-retrieval. On some devices Google Play services can automatically
-            //     detect the incoming verification SMS and perform verification without
-            //     user action.
-            signInWithPhoneAuthCredential(credential)
-        }
-
-        override fun onVerificationFailed(e: FirebaseException) {
-            // This callback is invoked in an invalid request for verification is made,
-            // for instance if the the phone number format is not valid.
-
-            if (e is FirebaseAuthInvalidCredentialsException) {
-                // Invalid request
-                Log.d("TAG", "onVerificationFailed: ${e.toString()}")
-            } else if (e is FirebaseTooManyRequestsException) {
-                // The SMS quota for the project has been exceeded
-                Log.d("TAG", "onVerificationFailed: ${e.toString()}")
-            }
-            // Show a message and update the UI
-        }
-
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            // The SMS verification code has been sent to the provided phone number, we
-            // now need to ask the user to enter the code and then construct a credential
-            // by combining the code with a verification ID.
-            // Save verification ID and resending token so we can use them later
-            val intent = Intent(this@loginpage, otp_verification::class.java)
-            intent.putExtra("OTP" , verificationId)
-            intent.putExtra("resendToken" , token)
-            intent.putExtra("phoneNumber" , number)
-            startActivity(intent)
-        }
-    }
-
-
-    override fun onStart() {
-        super.onStart()
-        if (auth.currentUser != null){
-            startActivity(Intent(this , signup::class.java))
-        }
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetworkInfo
+        return activeNetwork != null && activeNetwork.isConnected
     }
 }

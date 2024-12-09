@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "745767146207",
-    "project_id": "teamxspark-6c959",
-    "storage_bucket": "teamxspark-6c959.appspot.com"
+    "project_number": "745861954648",
+    "project_id": "teamxspark-7c038",
+    "storage_bucket": "teamxspark-7c038.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:745767146207:android:7462c1eb3e4fd0449b4f6a",
+        "mobilesdk_app_id": "1:745861954648:android:e00b921b99bece10b91e2d",
         "android_client_info": {
           "package_name": "com.example.uday"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAgA1teH-ZjpQzIVqTtwOvsrsK46pjE-cs"
+          "current_key": "AIzaSyAmP23YmMWI2AQ83gcI2ITO9aBMZlf3cdQ"
         }
       ],
       "services": {
