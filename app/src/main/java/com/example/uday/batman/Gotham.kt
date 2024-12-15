@@ -1,4 +1,4 @@
-package com.example.uday.diaster_management
+package com.example.uday.batman
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -7,18 +7,18 @@ import androidx.fragment.app.Fragment
 import com.example.uday.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class disastermap : AppCompatActivity() {
+class Gotham : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_disastermap)
-        replacefragment(dsmap())
+        replacefragment(gotham_map())
 
         findViewById<BottomNavigationView>(R.id.bottom_nav_bar).setOnItemSelectedListener{ item ->
             when(item.itemId){
-                R.id.bottom_map -> replacefragment(dsmap())
-                R.id.bottom_town -> replacefragment(dtown())
-                R.id.bottom_profile -> replacefragment(dprofile())
+                R.id.bottom_map -> replacefragment(gotham_map())
+                R.id.bottom_town -> replacefragment(familymap())
+                R.id.bottom_profile -> replacefragment(chat_bat())
                 else -> {
                 }
             }

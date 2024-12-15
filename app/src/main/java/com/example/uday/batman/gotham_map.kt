@@ -1,4 +1,4 @@
-package com.example.uday.diaster_management
+package com.example.uday.batman
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -31,7 +31,7 @@ import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.createPolygonAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
 
-class dsmap : Fragment() {
+class gotham_map : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var initial_location: Point
@@ -47,7 +47,7 @@ class dsmap : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_dmap, container, false)
+        val view = inflater.inflate(R.layout.fragment_gotham_map, container, false)
 
         // Initialize map view and location client
         mapView = view.findViewById(R.id.mapView)

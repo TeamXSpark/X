@@ -45,10 +45,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    configurations.all {
+        exclude(group = "org.hamcrest", module = "hamcrest-core")
+    }
+
 }
 
 dependencies {
-
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -76,10 +81,11 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.0")
     implementation("com.mapbox.maps:android:11.8.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.android.material:material:1.9.0")
     implementation("com.rethinkdb:rethinkdb-driver:2.4.4")
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.material:material:1.11.0")
-
+    testImplementation("junit:junit:4.13.2") {
+        exclude(group = "org.hamcrest", module = "hamcrest-core")
+    }
 }

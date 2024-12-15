@@ -23,15 +23,6 @@
             android:name="com.mapbox.maps.token"
             android:value="@string/mapbox_access_token" />
         <activity
-            android:name=".Chat.chat_room"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".login.loginpage"
             android:exported="true"
             android:screenOrientation="portrait"
@@ -49,12 +40,16 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
-        </activity> <!-- Disaster Management Map -->
+
+        </activity>
 
         <activity
-            android:name=".diaster_management.disastermap"
+            android:name=".batman.Gotham"
             android:exported="true">
-
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
     </application>
